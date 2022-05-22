@@ -3,14 +3,7 @@ from random import randint
 from itertools import chain, combinations
 import time
 
-def quick_pow(a, b, m):
-    ab = 1
-    while b > 0:
-        if b & 1:
-            ab = (ab * a) % m
-        b >>= 1
-        a = (a ** 2) % m
-    return ab
+# part 1a
 
 def get_ds(p):
     p -= 1
@@ -21,21 +14,23 @@ def get_ds(p):
     return (p, s)
 
 def strongly_prime(p, x, d, s):
-    xd = quick_pow(x, d, p)
+    xd = pow(x, d, p)
     if xd == 1 or xd == p - 1:
         return True
     xr = xd
     for r in range(1, s):
-        xr = quick_pow(xr, 2, p)
+        xr = pow(xr, 2, p)
         if xr == p - 1:
             return True
         if xr == 1:
             return False
+    return False
 
 def Millera_Rabina(p):
     d, s = get_ds(p)
-    if not(strongly_prime(p, 2, d, s)) or not(strongly_prime(p, 3, d, s)) or not(strongly_prime(p, 5, d, s)) or not(strongly_prime(p, 7, d, s)):
-        return False
+    for a in [2, 3, 5, 7]:
+        if not(strongly_prime(p, a, d, s)):
+            return False
     k = 0
     while k < 5:
         x = randint(2, p - 1)
@@ -44,17 +39,17 @@ def Millera_Rabina(p):
         k += 1
     return True
 
-#
+# part 1b
 
 def trial_divisions(num):
     for d in range(2, int(num ** 0.5)):
-        #if d >= 47:
-            #break
+        if d >= 47:
+            break
         if num % d == 0:
             return d
     return -1
 
-#
+# part 1c
 
 def f(x, num):
     return (x ** 2 + 1) % num
@@ -72,11 +67,11 @@ def Pollard(num):
                 return d
     return -1
 
-#
+# part 1d
 
 n = 1
 sn = 1
-a = 1
+al = 1
 La = 1
 
 V = []
@@ -93,15 +88,15 @@ Vec_all = []
 
 def calc_La():
     global La
-    La = math.e ** (a * (math.log2(n) * math.log2(math.log2(n))) ** 0.5)
-    print("a =", a)
+    La = math.e ** (al * (math.log2(n) * math.log2(math.log2(n))) ** 0.5)
+    print("a =", al)
     print("La =", La)
 
 def init_Brilhart_Morrison(num):
-    global n, sn, a, V, Al, A, U, B, B2, P, Fb, Vec_b, vec_len, Vec_all
+    global n, sn, al, V, Al, A, U, B, B2, P, Fb, Vec_b, vec_len, Vec_all
     n = num
     sn = n ** 0.5
-    a = (1 / 2) ** 0.5
+    al = (1 / 2) ** 0.5
 
     calc_La()
 
@@ -117,7 +112,7 @@ def init_Brilhart_Morrison(num):
     vec_len = 0
     Vec_all = []
 
-def table1():
+def calc_a():
     V.append((n - U[-1] ** 2) / V[-1])
     Al.append((sn + U[-1]) / V[-1])
     A.append(math.floor(Al[-1]))
@@ -127,56 +122,34 @@ def table1():
     print("a =", A[-1])
     #print("u =", U[-1])
     
-def table2():
+def calc_b():
     B.append((B[-1] * A[-1] + B[-2]) % n)
     b2 = pow(B[-1], 2, n)
     B2.append(b2 if b2 < n / 2 else b2 - n)
     print("b =", B[-1])
     print("b2 =", B2[-1])
 
-def Legendre_symbol(a,p):
-  if(a==1):
-    return 1
-  if(a%p==0):
-    return 0
-  if(a%2==0):
-    return Legendre_symbol(a/2,p)*pow(-1,(pow(p,2)-1)/8)
-  elif(a%2!=0 and a!=1):
-    return Legendre_symbol(pow(int(p),1,int(a)),a)*pow(-1,((a-1)*(p-1))/4)
-
-'''def Legendre_symbol(a, b):
-    #return 1
-    #return pow(a, int((b - 1) / 2), b)
-    if a == 1:
-        return 1
-    if a % b == 0:
+def Legendre_symbol(a, p):
+    if a % p == 0:
         return 0
-    if a % 2 == 0:
-        return Legendre_symbol(a / 2, b) * pow(-1, (pow(b, 2) - 1) / 8)
-        #return Legendre_symbol(a / 2, b) * ((-1) ** ((b * b - 1) / 8))
-    #return Legendre_symbol(b % a, a) * ((-1) ** ((a - 1) * (b - 1) / 4))
-    return Legendre_symbol(b % a, a) * pow(-1, ((a - 1) * (b - 1)) / 4)'''
+    return pow(a, int((p - 1) / 2), p)
 
 def check_divisor(p):
-    #return True
     ls = Legendre_symbol(n, p)
     if ls != 1:
         print("Legendre_symbol failed", n, p)
     if p >= La:
         print("La failed")
     return ls == 1 and p < La
-    #return 1
 
 def prime_divisors(num):
     P.clear()
     if num < 0:
         P[-1] = 1
         num *= -1
-        #Fb[-1] = 1
     p = 2
     while pow(p, 2) <= num:
         if num % p == 0:
-            #Fb[p] = 1
             P[p] = 1
             if not check_divisor(p):
                 return False
@@ -190,7 +163,6 @@ def prime_divisors(num):
         P[num] = 1
         if not check_divisor(p):
             return False
-        #Fb[num] = 1
     for p in P:
         Fb[p] = 1
     print("P =", P)
@@ -215,16 +187,16 @@ def build_vectors():
 def power_set(s):
     return list(chain.from_iterable(combinations(s, r) for r in range(1, len(s) + 1)))
 
-def get_key(dictionary, value):
-    for key in dictionary.keys():
-        if dictionary[key] == value:
-            return key
-
 def xor_vectors(vec_a, vec_b):
     vec_c = vec_a
     for i in range(len(vec_a)):
         vec_c[i] = (vec_c[i] + vec_b[i]) % 2
     return vec_c
+
+def get_key(dictionary, value):
+    for key in dictionary.keys():
+        if dictionary[key] == value:
+            return key
 
 def solve_vectors():
     Vec_power = power_set(Vec_b.values())
@@ -249,22 +221,21 @@ def solve_vectors():
                     print(d1, d2)
                     return (d1, d2)
                 print("gcd = 1")
-                global a
-                a += 1
+                global al
+                al += 1
             else:
                 print("X = +- Y")
     return (-1, -1)
 
 def Brilhart_Morrison(num):
     init_Brilhart_Morrison(num)
-    i = 1
-    while True:
+    for i in range(1, 100):
         print("i =", i)
         global vec_len
         vec_len = len(Fb)
         if i != 1:
-            table1()
-        table2()
+            calc_a()
+        calc_b()
         i += 1
         if not prime_divisors(B2[-1]):
             continue
@@ -275,7 +246,7 @@ def Brilhart_Morrison(num):
         print()
     return (-1, -1)
 
-#
+# part 2
 
 def main_part(number):
     number_before = number
@@ -327,11 +298,12 @@ def main_part(number):
         res *= r
     print(res, number_before == res)
 
-#main_part(49347803087)
+# part 3
 
-#
+main_part(49347803087)
+print()
 
-results = []
+# part 4
 
 def measure_time(num):
     start = time.perf_counter()
@@ -343,5 +315,6 @@ values = [9172639163, 8627969789, 8937716743, 278874899, 99400891, 116381389, 42
 
 for r in values:
     measure_time(r)
+print()
 
-#Brilhart_Morrison(10967535067)
+Brilhart_Morrison(10967535067)
