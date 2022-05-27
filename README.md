@@ -12,3 +12,5 @@ https://www.programiz.com/python-programming/online-compiler/
 - алгоритм Брілхарта-Моррісона - Brilhart_Morrison(int)
 - функція для пошуку канонічного розкладу - main_part(int)
 - функція для заміру часу роботи агоритму Полларда - measure_time(int)
+
+Функція для автоматичної роботи програми read_numbers_from_file(filename). Приймає ім'я файлу з розширенням .csv
