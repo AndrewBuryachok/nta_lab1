@@ -2,6 +2,7 @@ import math
 from random import randint
 from itertools import chain, combinations
 import time
+import csv
 
 # part 1a
 
@@ -297,6 +298,7 @@ def main_part(number):
     for r in result:
         res *= r
     print(res, number_before == res)
+    return result
 
 # part 3
 
@@ -318,3 +320,19 @@ for r in values:
 print()
 
 Brilhart_Morrison(10967535067)
+
+def read_numbers_from_file(filename):
+    file = open(filename)
+    csvreader = csv.reader(file)
+    numbers = list(*csvreader)
+    file.close()
+    results = []
+    for number in numbers:
+        number = int(number)
+        results.append(main_part(number))
+    file = open("results.csv", "w")
+    csvwriter = csv.writer(file)
+    csvwriter.writerows(results)
+    file.close()
+
+read_numbers_from_file("numbers.csv")
